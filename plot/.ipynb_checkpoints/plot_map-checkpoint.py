@@ -180,10 +180,13 @@ class CommonPlot:
 
     def add_state_boundary(self, ax, **kwargs):
         '''draw state boundary'''
-        states = NaturalEarthFeature(category='cultural', scale='50m', facecolor='none',
-                                     name='admin_1_states_provinces_shp')
-        ax.add_feature(states, linewidth=0.5, edgecolor='gray')
-        ax.coastlines('50m', linewidth=0.5, zorder=10, alpha=0.2)
+        states = NaturalEarthFeature(category='cultural', scale='10m', facecolor='none',
+                                     name='admin_1_states_provinces')
+        # ax.add_feature(states, linewidth=0.5, edgecolor='gray')
+        if kwargs.get('draw_coastline', True):
+            coastline_default_kwargs = dict(linewidth=0.5, zorder=10, alpha=0.2)
+            coastline_default_kwargs.update(kwargs.get('coastline_kw', {}))
+            ax.coastlines('10m', **coastline_default_kwargs)
         ax.add_feature(LAND,  edgecolor='none', alpha=0.2, facecolor='none', zorder=0)
         ax.add_feature(OCEAN, edgecolor='none', alpha=0.4, facecolor='lightgray', zorder=0)
 
