@@ -11,6 +11,7 @@ import cartopy.crs as ccrs
 import matplotlib.ticker as mticker
 #from geocat.viz import util as gvutil
 #from geocat.viz import cmaps as gvcmaps
+import matplotlib.patches as mpatches
 import matplotlib.ticker as mticker
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter, LatitudeLocator
 from .vectorplot import velovect
@@ -63,17 +64,21 @@ class CommonPlot:
     #...add vector overlay to plot
     def add_vector(self, ax, lon, lat, u, v, **kwargs):
         if not kwargs.get('nomap', False):
-            vector_kwargs = dict(pivot='tail', width=0.003, 
-                             scale_units="inches", scale=300,
-                             headwidth=5, alpha=1,
-                             transform=ccrs.PlateCarree())
+            vector_default_kwargs = dict(
+                pivot='tail', width=0.003, 
+                scale_units="inches", scale=300,
+                headwidth=5, alpha=1,
+                transform=ccrs.PlateCarree()
+            )
         else:
-            vector_kwargs = dict(pivot='tail', width=0.003, 
-                             scale_units="inches", scale=300,
-                             headwidth=5, alpha=1)
+            vector_default_kwargs = dict(
+                pivot='tail', width=0.003, 
+                scale_units="inches", scale=300,
+                headwidth=5, alpha=1
+            )
         if 'nomap' in kwargs: del kwargs['nomap']
-        vector_kwargs.update(kwargs)
-        cs = ax.quiver(lon, lat, u.data, v.data, **vector_kwargs)
+        vector_default_kwargs.update(kwargs.get('vector_kwargs', {}))
+        cs = ax.quiver(lon, lat, u.data, v.data, **vector_default_kwargs)
 #        grains = kwargs.get("grains", 10)
 #        scale  = kwargs.get("scale", 1.0)
 #        linewidth = kwargs.get("linewidth", 0.8)
@@ -90,6 +95,16 @@ class CommonPlot:
 #            transform=ccrs.PlateCarree()
 #        )
         return cs
+
+    def add_quiverkey(self, ax, vplot, x=0.83, y=-0.16, length=8, string='8 $ms^{-1}$', **kwargs):
+        quiverkey_default_kwargs = dict(
+            labelpos='W',
+            coordinates='axes',
+            color='black'
+        )
+        quiverkey_default_kwargs.update(kwargs)
+        qk = ax.quiverkey(vplot, x, y, length, string, **quiverkey_default_kwargs)
+
 
     def add_hatches(self, ax, *args, **kwargs):
         '''wrapper for contourf or contour'''
@@ -180,9 +195,15 @@ class CommonPlot:
 
     def add_state_boundary(self, ax, **kwargs):
         '''draw state boundary'''
-        states = NaturalEarthFeature(category='cultural', scale='10m', facecolor='none',
-                                     name='admin_1_states_provinces')
-        # ax.add_feature(states, linewidth=0.5, edgecolor='gray')
+        
+        if kwargs.get('draw_state', True):
+            states = NaturalEarthFeature(
+                category='cultural', scale='10m', facecolor='none',
+                name='admin_1_states_provinces'
+            )
+            state_default_kwargs = dict(linewidth=0.5, zorder=10, alpha=0.2)
+            state_default_kwargs.update(kwargs.get('state_kw', {}))
+            ax.add_feature(states, **state_default_kwargs)
         if kwargs.get('draw_coastline', True):
             coastline_default_kwargs = dict(linewidth=0.5, zorder=10, alpha=0.2)
             coastline_default_kwargs.update(kwargs.get('coastline_kw', {}))
@@ -254,5 +275,14 @@ class CommonPlot:
         for ilat, ilon in zip(lats[::-1,-1], lons[::-1,-1]): pgon.append([ilon.data, ilat.data])
         for ilat, ilon in zip(lats[0,::-1],  lons[0,::-1] ): pgon.append([ilon.data, ilat.data])
         return(Polygon(pgon))
+    
+    def add_rectangle(self, ax, rect, **kwargs):
+        rect_kwargs = dict(
+            xy=(rect[0], rect[2]), width=rect[1]-rect[0], height=rect[3]-rect[2],
+            ec="tab:purple", lw=2,
+            fc="none", transform=ccrs.PlateCarree()
+        )
+        rect_kwargs.update(kwargs)
+        ax.add_patch(mpatches.Rectangle(**rect_kwargs))
     
 plot_map = CommonPlot()

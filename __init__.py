@@ -2,7 +2,7 @@ __author__ = 'Ye Liu'
 __all__ = ['dataset', 'myplot', 'global_variable', 'importlibs', 'look_up_table', 'myera5', 'mysom']
 
 #from .myplot import myplot
-#from .myfunc import myfunc
+from .myfunc import myfunc
 #from .myera5 import myera5
 #from .mysom import mysom
 import numpy as np
