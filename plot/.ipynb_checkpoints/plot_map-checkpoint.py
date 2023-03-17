@@ -4,7 +4,7 @@ from . import global_variable
 #import wrf
 from shapely.geometry.polygon import Polygon
 from cartopy import crs as ccrs
-from cartopy.feature import NaturalEarthFeature, OCEAN, LAND, LAKES
+from cartopy.feature import NaturalEarthFeature, OCEAN, LAND, LAKES, BORDERS
 from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import cmaps
 import cartopy.crs as ccrs 
@@ -215,8 +215,13 @@ class CommonPlot:
             coastline_default_kwargs = dict(linewidth=0.5, zorder=10, alpha=0.2)
             coastline_default_kwargs.update(kwargs.get('coastline_kw', {}))
             ax.coastlines('10m', **coastline_default_kwargs)
-        ax.add_feature(LAND,  edgecolor='none', alpha=0.2, facecolor='none', zorder=0)
-        ax.add_feature(OCEAN, edgecolor='none', alpha=0.4, facecolor='lightgray', zorder=0)
+        if kwargs.get('draw_borders', False):
+            border_default_kwargs = dict(linewidth=0.5, zorder=10, alpha=0.7)
+            border_default_kwargs.update(kwargs.get('border_kw', {}))
+            ax.add_feature(BORDERS, **border_default_kwargs)
+
+#        ax.add_feature(LAND,  edgecolor='none', alpha=0.2, facecolor='none', zorder=0)
+#        ax.add_feature(OCEAN, edgecolor='none', alpha=0.1, facecolor='lightgray', zorder=0)
 
     def add_gridlines(self, ax, xticks=None, yticks=None, extent=None, **_kwargs):
         if xticks is None: xticks = np.linspace(extent[0], extent[1], 4)

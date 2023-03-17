@@ -1,9 +1,9 @@
 __author__ = 'Ye Liu'
-__all__ = ['wfip2', 'etopo']
+__all__ = ['func_wfip2', 'func_etopo', 'func_wrf']
 
-#from .myplot import myplot
-#from .myfunc import myfunc
-#from .myera5 import myera5
-#from .mysom import mysom
+#from .wfip2 import *
+#from .etopo import *
+#from .wfip2 import read
+from .dataset_era5 import myera5
 
 

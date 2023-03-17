@@ -4,5 +4,6 @@ __all__ = ['func_wfip2', 'func_etopo', 'func_wrf']
 #from .wfip2 import *
 #from .etopo import *
 #from .wfip2 import read
+from .dataset_era5 import myera5
 
 
