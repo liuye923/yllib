@@ -166,7 +166,7 @@ class CommonPlot:
         if not kwargs.get("nomap", False):
             contourf_kwargs = dict(cmap=cmap, norm=norm, transform=ccrs.PlateCarree())
         else:
-            contourf_kwargs = dict(cmap=cmap, norm=norm)
+            contourf_kwargs = dict(cmap=cmap, norm=norm)#, shading='auto')
         cs = ax.pcolormesh(*args, **contourf_kwargs)
         return cs, clev
 
@@ -181,16 +181,23 @@ class CommonPlot:
             if y is None: y = 1.01
             kwargs["horizontalalignment"] = "right"
         ax.text(x, y, string, **kwargs)
-
+        
+    def _list_to_colormap(self, cmap):
+        from matplotlib.colors import ListedColormap, LinearSegmentedColormap
+        return ListedColormap(cmap)
+        
     def _colormap(self, cmap, clev, cend=None):
         '''extract colormap and levels'''
-#        if type(cmap)==str: cmap = getattr(gvcmaps, cmap) 
-        if type(cmap)==str: cmap = getattr(cmaps, cmap) 
-        if cend is not None:
-            print(cend)
-            cmap = cmap[:cend,:]
-            cmap.N = cend
-        norm = matplotlib.colors.BoundaryNorm(clev, cmap.N)
+        norm = None
+        if isinstance(cmap, list): cmap = self._list_to_colormap(cmap)
+        if isinstance(cmap, str):
+    #        if type(cmap)==str: cmap = getattr(gvcmaps, cmap) 
+            if type(cmap)==str: cmap = getattr(cmaps, cmap) 
+            if cend is not None:
+                print(cend)
+                cmap = cmap[:cend,:]
+                cmap.N = cend
+            norm = matplotlib.colors.BoundaryNorm(clev, cmap.N)
         return cmap, clev, norm
 
     def add_state_boundary(self, ax, **kwargs):
