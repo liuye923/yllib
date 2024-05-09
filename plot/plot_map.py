@@ -44,11 +44,16 @@ class CommonPlot:
         ax.plot(*point, **kwargs)
 
     def add_colorbar(self, cs, ax, ticks, units=None, **_kwargs):
+        orientation = _kwargs.get('orientation', 'horizontal')
+        if orientation == 'horizontal': panchor = (0.5, 0.5)
+        if orientation == 'vertical': panchor = (1.0, 0.0)
+        print(panchor)
         kwargs = dict(ax=ax,
-                      orientation="horizontal",
+                      orientation=orientation,
                       ticks=ticks,
 #                      drawedges=True,
                       extendrect=True,
+                      # panchor=panchor,
                       pad=0.08,
                       shrink=0.75,
                       aspect=30,
@@ -58,7 +63,10 @@ class CommonPlot:
         ccs = plt.colorbar(cs, **kwargs)
         if units is not None:
             cax = ccs.ax
-            cax.text(1.01, 0.5, units, transform=cax.transAxes, va="center", fontsize=12) 
+            if kwargs['orientation']=='horizontal':
+                cax.text(1.01, 0.5, units, transform=cax.transAxes, va="center", fontsize=12) 
+            if kwargs['orientation']=='vertical':
+                cax.text(0.01, 1.05, units, transform=cax.transAxes, ha="left", fontsize=12) 
         return ccs
 
     #...add vector overlay to plot
@@ -78,7 +86,7 @@ class CommonPlot:
             )
         if 'nomap' in kwargs: del kwargs['nomap']
         vector_default_kwargs.update(kwargs.get('vector_kwargs', {}))
-        cs = ax.quiver(lon, lat, u.data, v.data, **vector_default_kwargs)
+        cs = ax.quiver(lon, lat, u, v, **vector_default_kwargs)
 #        grains = kwargs.get("grains", 10)
 #        scale  = kwargs.get("scale", 1.0)
 #        linewidth = kwargs.get("linewidth", 0.8)
@@ -115,7 +123,11 @@ class CommonPlot:
         clev = kwargs.get('clev')
         hatches = kwargs.get("hatches", ["///"])
         plt.rcParams['hatch.color'] = kwargs.get("color","k")
-        contourf_kwargs = dict(hatches=hatches, levels=clev, colors="none", transform=ccrs.PlateCarree())
+        if not kwargs.get('nomap', False):
+            contourf_kwargs = dict(hatches=hatches, levels=clev, colors="none", transform=ccrs.PlateCarree())
+        else:
+            contourf_kwargs = dict(hatches=hatches, levels=clev, colors="none")
+        if 'nomap' in kwargs: del kwargs['nomap']
         cs = ax.contourf(*args, **contourf_kwargs)
         return cs, clev
 
